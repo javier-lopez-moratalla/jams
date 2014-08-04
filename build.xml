@@ -1,0 +1,33 @@
+<project default="build">
+	
+	<property name="dir.src" value="${basedir}/src/main/java"/>
+	<property name="dir.dist" value="${basedir}/dist"/>
+	<property name="dir.build" value="${basedir}/classes"/>
+	<property name="dir.lib" value="${basedir}/lib"/>
+	
+	<path id="lib.classpath">
+		<fileset dir="${dir.lib}">
+    		<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<!-- ================================= 
+          target: compile              
+         ================================= -->
+    <target name="compile" depends="" description="compila las clases">
+        <javac srcdir="${dir.src}" destdir="${dir.build}" debug="on">
+    		<classpath refid="lib.classpath"/>    	
+		</javac>
+    </target>
+
+	<!-- ================================= 
+          target: build              
+         ================================= -->
+    <target name="build" depends="compile" description="Tarea que contruye el jar">
+        <jar destfile="${dir.dist}/jams.jar">
+        	<fileset dir="${dir.build}">
+    			<include name="**/*.*"/>    			
+			</fileset>
+        </jar>
+    </target>
+</project>
