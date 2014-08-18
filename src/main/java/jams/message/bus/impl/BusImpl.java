@@ -25,6 +25,18 @@ public class BusImpl implements Bus {
 	}
 	
 	@Override
+	public Message createMessage(ReceiverID sender, List<ReceiverID> receivers) {
+	
+		Message message = new BasicMessageImpl();
+		
+		Headers headers = message.getHeaders();
+		headers.setSender(sender);
+		headers.setReceivers(receivers);
+		
+		return message;
+	}
+	
+	@Override
 	public List<SendingError> sendMessage(Message message) {
 
 		List<SendingError> result = new LinkedList<SendingError>();

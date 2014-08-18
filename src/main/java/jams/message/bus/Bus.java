@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface Bus {
 
+	public Message createMessage(ReceiverID sender,List<ReceiverID> receivers);
+	
 	public List<SendingError> sendMessage(Message message);
 	public List<SendingError> sendMessage(Message message, ConversationHandler handler);
 	

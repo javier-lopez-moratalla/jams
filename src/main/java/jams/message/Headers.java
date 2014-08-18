@@ -11,4 +11,10 @@ public interface Headers {
 	
 	public Long getConversationId();
 	public void setConversationId(Long conversationId);
+
+	public void setHeader(String header, String value);
+
+	public void setSender(ReceiverID sender);
+
+	public void setReceivers(List<ReceiverID> receivers);
 }
