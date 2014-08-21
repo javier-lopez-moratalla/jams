@@ -12,8 +12,10 @@ public interface Bus {
 	public Message createMessage(ReceiverID sender,List<ReceiverID> receivers);
 	public Message createMessage(ReceiverID sender,ReceiverID receiver);
 	
-	public List<SendingError> sendMessage(Message message);
-	public List<SendingError> sendMessage(Message message, ConversationHandler handler);
+	public Message createResponse(Message message);
+	
+	public void sendMessage(Message message);
+	public void sendMessage(Message message, ConversationHandler handler);
 	
 	public void addReceiver(ReceiverID id, Receiver receiver);
 

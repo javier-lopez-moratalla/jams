@@ -12,16 +12,29 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+
+import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
 
 public class BusImpl implements Bus {
 
 	private Map<ReceiverID, Receiver> receivers;
 	private Map<Long,Map<ReceiverID,ConversationHandler>> conversationHandlers;
 	
+	private Object lockQueue;
+	private Queue<Message> queue;
+	
 	public BusImpl() {
 	
 		receivers = new HashMap<ReceiverID, Receiver>();
 		conversationHandlers = new HashMap<Long, Map<ReceiverID,ConversationHandler>>();
+		
+		lockQueue = new Object();
+		queue = new LinkedList<>();
+		
+		Thread processingThread = new Thread(new ProcessingThread(1000));
+		processingThread.setDaemon(true);
+		processingThread.start();
 	}
 	
 	@Override
@@ -52,7 +65,29 @@ public class BusImpl implements Bus {
 	}
 	
 	@Override
-	public List<SendingError> sendMessage(Message message) {
+	public Message createResponse(Message message) {
+	
+		Message response = new BasicMessageImpl();
+		
+		List<ReceiverID> receivers = new LinkedList<>();
+		receivers.add(message.getHeaders().getSender());
+
+		response.getHeaders().setReceivers(receivers);
+		response.getHeaders().setConversationId(message.getHeaders().getConversationId());
+		
+		return response;
+	}
+	
+	@Override
+	public void sendMessage(Message message) {
+		
+		synchronized (lockQueue) {
+		
+			queue.add(message);
+		}
+	}
+	
+	private void processMessage(Message message){
 
 		List<SendingError> result = new LinkedList<SendingError>();
 		
@@ -101,12 +136,10 @@ public class BusImpl implements Bus {
 				result.add(error);
 			}
 		}
-		
-		return result;
 	}
 	
 	@Override
-	public List<SendingError> sendMessage(Message message,
+	public void sendMessage(Message message,
 			ConversationHandler handler) {
 
 		Headers headers = message.getHeaders();
@@ -121,7 +154,7 @@ public class BusImpl implements Bus {
 		
 		addHandler(conversationId, sender, handler);
 		
-		return sendMessage(message);
+		sendMessage(message);
 	}
 
 	private Long generateConversationId(){
@@ -164,4 +197,69 @@ public class BusImpl implements Bus {
 		receivers.remove(id);
 	}
 
+	private class ProcessingThread implements Runnable{
+		
+		private long delay;
+		;
+		private boolean stop;
+		private Object lockStop;
+		
+		public ProcessingThread(long delay) {
+		
+			this.delay = delay;
+			stop = true;
+			lockStop = new Object();
+		}
+		
+		public boolean isStop(){
+			
+			synchronized (lockStop) {
+			
+				return stop;
+			}
+		}
+		
+		public void setStop(boolean newStop){
+			
+			synchronized (lockStop) {
+			
+				stop = newStop;
+			}
+		}
+		
+		@Override
+		public void run() {
+					
+			setStop(false);
+ 
+			boolean actualStop = isStop();
+			
+			while(!actualStop){	
+				
+				Message message;
+				
+				synchronized (lockQueue) {
+				
+					message = queue.poll();
+				}
+				
+				if(message != null){
+					
+					processMessage(message);
+				}
+				else{
+					
+					try{
+						Thread.sleep(delay);
+					}
+					catch(InterruptedException e){
+						
+						e.printStackTrace();
+					}
+				}
+				
+				actualStop = isStop();
+			}
+		}
+	}
 }
