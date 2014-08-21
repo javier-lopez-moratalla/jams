@@ -246,6 +246,7 @@ public class BusImpl implements Bus {
 				if(message != null){
 					
 					processMessage(message);
+					
 				}
 				else{
 					
