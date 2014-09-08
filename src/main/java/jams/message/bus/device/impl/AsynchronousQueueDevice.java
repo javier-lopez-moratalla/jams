@@ -66,4 +66,9 @@ public class AsynchronousQueueDevice implements Device {
 		
 		bus.removeReceiver(receiverID, id);
 	}
+	
+	public boolean isRegistered(ReceiverID receiver){
+		
+		return bus.isRegistered(receiver, id);
+	}
 }

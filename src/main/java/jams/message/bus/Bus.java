@@ -25,6 +25,9 @@ public interface Bus {
 	public void removeReceiver(ReceiverID id);
 	public void removeReceiver(ReceiverID receiver, DeviceID device);
 
+	public boolean isRegistered(ReceiverID id);
+	public boolean isRegistered(ReceiverID id, DeviceID device);
+	
 	public void addDevice(DeviceID id, Device device);
 	public void removeDevice(DeviceID id);
 }

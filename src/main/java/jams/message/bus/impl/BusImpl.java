@@ -234,6 +234,13 @@ public class BusImpl implements Bus {
 	}
 
 	@Override
+	public boolean isRegistered(ReceiverID id) {
+	
+		return receivers.containsKey(id)||externalReceivers.containsKey(id);
+	}
+		
+	
+	@Override
 	public void addDevice(DeviceID id, Device device) {
 	
 		devices.put(id, device);
@@ -251,6 +258,22 @@ public class BusImpl implements Bus {
 		
 		externalReceivers.put(receiver, device);
 		deviceContent.get(device).add(receiver);
+	}
+	
+	@Override
+	public boolean isRegistered(ReceiverID id, DeviceID device) {
+
+		if(!devices.containsKey(device)){
+			
+			return false;
+		}
+		
+		if(!isRegistered(id)){
+			
+			return false;
+		}
+		
+		return externalReceivers.containsKey(id)&&externalReceivers.get(id).equals(device);
 	}
 	
 	@Override
@@ -320,8 +343,14 @@ public class BusImpl implements Bus {
 				
 				if(message != null){
 					
-					processMessage(message);
+					try{
 					
+						processMessage(message);
+					}
+					catch(Exception e){
+						
+						e.printStackTrace();
+					}
 				}
 				else{
 					
