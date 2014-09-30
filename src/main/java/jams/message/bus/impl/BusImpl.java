@@ -45,48 +45,7 @@ public class BusImpl implements Bus {
 		processingThread.setDaemon(true);
 		processingThread.start();
 	}
-	
-	@Override
-	public Message createMessage(ReceiverID sender, List<ReceiverID> receivers) {
-	
-		Message message = new BasicMessageImpl();
-		
-		Headers headers = message.getHeaders();
-		headers.setSender(sender);
-		headers.setReceivers(receivers);
-		
-		return message;
-	}
-	
-	@Override
-	public Message createMessage(ReceiverID sender, ReceiverID receiver) {
-	
-		Message message = new BasicMessageImpl();
-		
-		List<ReceiverID> receivers = new LinkedList<ReceiverID>();
-		receivers.add(receiver);
-		
-		Headers headers = message.getHeaders();
-		headers.setSender(sender);
-		headers.setReceivers(receivers);
-		
-		return message;
-	}
-	
-	@Override
-	public Message createResponse(Message message) {
-	
-		Message response = new BasicMessageImpl();
-		
-		List<ReceiverID> receivers = new LinkedList<>();
-		receivers.add(message.getHeaders().getSender());
-
-		response.getHeaders().setReceivers(receivers);
-		response.getHeaders().setConversationId(message.getHeaders().getConversationId());
-		
-		return response;
-	}
-	
+			
 	@Override
 	public void sendMessage(Message message) {
 		
@@ -209,7 +168,8 @@ public class BusImpl implements Bus {
 		}
 	}
 	
-	private void addHandler(Long conversationId,ReceiverID receiver,ConversationHandler handler){
+	@Override
+	public void addHandler(Long conversationId,ReceiverID receiver,ConversationHandler handler){
 		
 		Map<ReceiverID, ConversationHandler> conversation = conversationHandlers.get(conversationId);
 		if(conversation == null){
